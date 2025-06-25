@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="sr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Prijava</title>
+    <link href="/css/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+<div class="bg-white p-10 rounded-lg shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-center text-dark">Prijava</h2>
+
+    <div th:if="${session.poruka}" class="mb-4 text-yellow-700 bg-yellow-100 border border-yellow-300 px-4 py-2 rounded">
+        <p th:text="${session.poruka}"></p>
+    </div>
+
+
+    <div th:if="${error}" class="mb-4 text-red-600 text-sm" th:text="${error}"></div>
+
+    <form th:action="@{/login}" method="post" class="space-y-4">
+        <div>
+            <label class="block text-dark">Email</label>
+            <input type="email" name="email" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required />
+        </div>
+
+        <div>
+            <label class="block text-dark">Lozinka</label>
+            <input type="password" name="lozinka" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required />
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">Prijavi se</button>
+        </div>
+    </form>
+
+    <p class="text-center text-gray-500 mt-4">
+        Nemate nalog? <a href="/register" class="text-primary hover:underline">Registrujte se</a>
+    </p>
+</div>
+
+</body>
+</html>

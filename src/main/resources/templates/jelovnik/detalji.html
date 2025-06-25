@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="sr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalji jela</title>
+    <link href="/css/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center text-gray-800">
+<div th:replace="fragments/layout :: navbar"></div>
+
+<div class="bg-white shadow-2xl rounded-2xl p-8 max-w-2xl w-full animate-fade-in">
+    <!-- Slika -->
+    <div class="relative mb-6">
+        <img th:src="${jelo.slika}" th:alt="${jelo.naziv}" class="w-full h-64 object-cover rounded-xl shadow-md">
+        <div class="absolute top-2 right-2 bg-white rounded-full px-3 py-1 text-sm font-medium text-gray-700 shadow">
+            <i class="fas fa-tag mr-1 text-green-500"></i><span th:text="${jelo.tip}">Tip</span>
+        </div>
+    </div>
+
+    <!-- Naslov -->
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-3 flex items-center gap-2">
+        <i class="fas fa-utensils text-blue-600"></i>
+        <span th:text="${jelo.naziv}">Naziv jela</span>
+    </h1>
+
+    <!-- Opis -->
+    <p class="text-gray-700 text-lg leading-relaxed mb-4" th:text="${jelo.opis}">
+        Opis jela će biti ovde.
+    </p>
+
+    <!-- Cena -->
+    <div class="text-2xl font-bold text-green-600 mb-6">
+        <i class="fas fa-money-bill-wave mr-1"></i>
+        <span th:text="${jelo.cena + ' RSD'}">Cena</span>
+    </div>
+
+    <!-- Poručivanje -->
+    <form th:action="@{/korpa/dodaj}" method="post" class="flex flex-col sm:flex-row sm:items-center gap-4">
+        <input type="hidden" name="jelovnikId" th:value="${jelo.id}" />
+        <label class="flex items-center gap-2">
+            <i class="fas fa-sort-numeric-up text-blue-600"></i>
+            <input type="number" name="kolicina" min="1" value="1"
+                   class="w-24 border border-gray-300 px-3 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 transition" />
+        </label>
+        <button type="submit"
+                class="flex items-center justify-center bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow transition">
+            <i class="fas fa-cart-plus mr-2"></i>Dodaj u korpu
+        </button>
+    </form>
+</div>
+
+</body>
+</html>
+

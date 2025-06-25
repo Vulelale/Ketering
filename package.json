@@ -1,0 +1,20 @@
+{
+  "name": "keteringapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tailwindcss-cli -i ./src/main/resources/static/css/input.css -o ./src/main/resources/static/css/output.css --watch",
+    "dev": "tailwindcss -i ./src/main/resources/static/css/input.css -o ./src/main/resources/static/css/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.5",
+    "tailwindcss": "^4.1.10",
+    "tailwindcss-cli": "^0.1.2"
+  }
+}

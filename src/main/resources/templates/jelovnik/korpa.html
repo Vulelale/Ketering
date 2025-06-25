@@ -1,0 +1,78 @@
+    <!DOCTYPE html>
+    <html lang="sr" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Detalji jela</title>
+        <link href="/css/output.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </head>
+
+    <body class="bg-gray-100 min-h-screen">
+    <div th:replace="fragments/layout :: navbar"></div>
+    <div class="max-w-4xl mx-auto p-8 bg-white rounded shadow mt-20">
+
+        <div th:if="${param.uspesno}">
+            <p class="text-green-600 font-semibold mb-4">Porudžbina je uspešno sačuvana!</p>
+        </div>
+
+
+        <h1 class="text-2xl font-bold mb-6">Vaša korpa</h1>
+
+        <div th:if="${#lists.isEmpty(korpa)}">
+            <p>Korpa je prazna.</p>
+        </div>
+
+
+        <form th:action="@{/korpa/potvrdi}" method="post" th:if="${not #lists.isEmpty(korpa)}">
+            <table class="w-full border text-left mb-4">
+                <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-2">Slika</th>
+                    <th class="p-2">Naziv</th>
+                    <th class="p-2">Cena</th>
+                    <th class="p-2">Količina</th>
+                    <th class="p-2">Ukupno</th>
+                    <th class="p-2">Akcija</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="stavka, iterStat : ${korpa}" class="border-t">
+                    <td class="p-2">
+                        <img th:src="${stavka.jelovnikID.slika}" alt="slika jela"
+                             class="w-16 h-16 object-cover rounded" />
+                    </td>
+                <td class="p-2" th:text="${stavka.jelovnikID.naziv}"></td>
+                    <td class="p-2" th:text="${stavka.jelovnikID.cena}"></td>
+                    <td class="p-2" th:text="${stavka.kolicina}"></td>
+                    <td class="p-2" th:text="${stavka.kolicina * stavka.jelovnikID.cena}"></td>
+                    <td class="p-2 text-left">
+                        <a th:href="@{/korpa/ukloni(index=${iterStat.index})}"
+                           class="text-red-600 hover:underline">
+                            Ukloni
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr class="border-t">
+                    <td colspan="4" class="p-2 font-semibold text-right">Ukupno:</td>
+                    <td class="p-2 font-semibold" th:text="${#numbers.formatDecimal(ukupnaCena, 0, 'COMMA', 2, 'POINT')}">Ukupno</td>
+                </tr>
+                </tfoot>
+
+            </table>
+
+            <div>
+                <label for="napomena" class="block font-semibold mb-1">Napomena:</label>
+                <textarea id="napomena" name="napomena" rows="3"
+                          class="w-full border rounded p-2"
+                          placeholder="Upišite napomenu za vašu porudžbinu..."></textarea>
+            </div>
+
+            <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                Potvrdi porudžbinu
+            </button>
+        </form>
+    </div>
+    </body>
+    </html>

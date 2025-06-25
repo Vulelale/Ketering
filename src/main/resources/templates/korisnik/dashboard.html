@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="sr" x-data="{
+    tab: localStorage.getItem('tab') || 'profil',
+    setTab(value) {
+        this.tab = value;
+        localStorage.setItem('tab', value);
+    }
+}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Korisnički Dashboard</title>
+    <script th:src="@{/webjars/alpinejs/3.14.9/dist/cdn.min.js}"></script>
+    <link href="/css/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen text-gray-800">
+<div th:replace="fragments/layout :: navbar"></div>
+<main class="flex-grow pt-20 pb-16 px-6">
+    <div class="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl p-8">
+        <div class="flex space-x-6 mb-8 border-b pb-2 justify-center">
+            <button @click="setTab('profil')"
+                    :class="tab === 'profil' ? 'text-blue-600 font-bold border-b-2 border-blue-600' : 'text-gray-500'"
+                    class="px-6 pb-2 text-lg flex items-center gap-2">
+                <i class="fas fa-user"></i>Profil
+            </button>
+
+            <button @click="setTab('porudzbine')"
+                    :class="tab === 'porudzbine' ? 'text-blue-600 font-bold border-b-2 border-blue-600' : 'text-gray-500'"
+                    class="px-6 pb-2 text-lg flex items-center gap-2">
+                <i class="fas fa-box"></i>Moje porudžbine
+            </button>
+
+            <button @click="setTab('rezervacije')"
+                    :class="tab === 'rezervacije' ? 'text-blue-600 font-bold border-b-2 border-blue-600' : 'text-gray-500'"
+                    class="px-6 pb-2 text-lg flex items-center gap-2">
+                <i class="fas fa-calendar-check"></i>Moje rezervacije
+            </button>
+
+        </div>
+
+
+        <div x-show="tab === 'profil'" class="space-y-6">
+            <h2 class="text-2xl font-semibold flex items-center gap-2"><i class="fas fa-pen"></i>Izmeni podatke</h2>
+            <form th:action="@{/korisnik/izmeni}" method="post" class="space-y-4">
+                <div>
+                    <label class="block font-medium">Ime:</label>
+                    <input type="text" name="ime" th:value="${korisnik.ime}" class="border px-3 py-2 w-full rounded shadow-sm">
+                </div>
+                <div>
+                    <label class="block font-medium">Prezime:</label>
+                    <input type="text" name="prezime" th:value="${korisnik.prezime}" class="border px-3 py-2 w-full rounded shadow-sm">
+                </div>
+                <div>
+                    <label class="block font-medium">Email:</label>
+                    <input type="email" name="email" th:value="${korisnik.email}" disabled class="border px-3 py-2 w-full rounded bg-gray-100">
+                </div>
+                <div>
+                    <label class="block font-medium">Nova lozinka:</label>
+                    <input type="password" name="lozinka" class="border px-3 py-2 w-full rounded shadow-sm">
+                </div>
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">
+                    <i class="fas fa-save mr-1"></i>Sačuvaj promene
+                </button>
+            </form>
+        </div>
+
+
+        <div x-show="tab === 'porudzbine'" class="space-y-6">
+            <h2 class="text-2xl font-semibold flex items-center gap-2"><i class="fas fa-receipt"></i>Moje porudžbine</h2>
+            <div th:if="${successMessage}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded" role="alert">
+                <p th:text="${successMessage}"></p>
+            </div>
+            <div th:if="${errorMessage}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+                <p th:text="${errorMessage}"></p>
+            </div>
+
+            <form method="get" th:action="@{/korisnik/dashboard}" class="flex gap-2 items-center">
+                <label>Status:</label>
+                <select name="status" class="border p-2 rounded shadow-sm">
+                    <option value="" th:selected="${statusFilter == null}">Svi</option>
+                    <option th:value="'Na čekanju'" th:selected="${statusFilter == 'Na čekanju'}">Na čekanju</option>
+                    <option th:value="'Otkazano'" th:selected="${statusFilter == 'Otkazano'}">Otkazano</option>
+                    <option th:value="'Isporučeno'" th:selected="${statusFilter == 'Isporučeno'}">Isporučeno</option>
+                </select>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    <i class="fas fa-filter mr-1"></i>Filtriraj
+                </button>
+            </form>
+
+            <div th:each="p : ${porudzbinePage.content}" class="border rounded-xl p-6 shadow bg-gray-50">
+                <p><strong><i class="fas fa-calendar-alt"></i> Datum:</strong> <span th:text="${#temporals.format(p.datumPorudzbine, 'dd.MM.yyyy HH:mm')}"></span></p>
+                <p><strong><i class="fas fa-info-circle"></i> Status:</strong> <span th:text="${p.status}"></span></p>
+                <p><strong><i class="fas fa-sticky-note"></i> Napomena:</strong> <span th:text="${p.napomena} ?: 'Nema'"></span></p>
+
+                <table class="w-full text-left border mt-4 rounded shadow-sm">
+                    <thead class="bg-blue-100">
+                    <tr>
+                        <th class="p-2 border">Jelo</th>
+                        <th class="p-2 border">Cena (RSD)</th>
+                        <th class="p-2 border">Količina</th>
+                        <th class="p-2 border">Ukupno (RSD)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="stavka : ${p.stavke}">
+                        <td class="p-2 border" th:text="${stavka.jelovnikID.naziv}"></td>
+                        <td class="p-2 border" th:text="${stavka.jelovnikID.cena}"></td>
+                        <td class="p-2 border" th:text="${stavka.kolicina}"></td>
+                        <td class="p-2 border" th:text="${stavka.kolicina * stavka.jelovnikID.cena}"></td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3" class="p-2 border font-semibold text-right">Ukupno:</td>
+                        <td class="p-2 border font-bold text-blue-600" th:text="${#numbers.formatDecimal(ukupneCene[p.id], 0, 'COMMA', 2, 'POINT')}">Ukupna cena</td>
+                    </tr>
+                    </tfoot>
+                </table>
+
+                <div class="flex gap-4 mt-4">
+                    <form th:if="${p.status == 'Na čekanju'}" th:action="@{/korisnik/otkazi/{id}(id=${p.id})}" method="post">
+                        <button type="submit" class="text-red-600 hover:underline"><i class="fas fa-times-circle mr-1"></i>Otkaži porudžbinu</button>
+                    </form>
+                    <form th:if="${p.status == 'Na čekanju'}" th:action="@{/korisnik/potvrdi-primanje/{id}(id=${p.id})}" method="post">
+                        <button type="submit" class="text-green-600 hover:underline"><i class="fas fa-check-circle mr-1"></i>Potvrdi prijem</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mt-6">
+                <div class="text-sm text-gray-600">
+                    Strana <span th:text="${porudzbinePage.number + 1}"></span> od <span th:text="${porudzbinePage.totalPages}"></span>
+                </div>
+                <div class="space-x-2">
+                    <a th:if="${!porudzbinePage.first}"
+                       th:href="@{/korisnik/dashboard(page=${porudzbinePage.number - 1}, size=${porudzbinePage.size}, status=${statusFilter})}"
+                       class="px-4 py-2 border rounded bg-gray-200 hover:bg-gray-300">Prethodna</a>
+                    <a th:if="${!porudzbinePage.last}"
+                       th:href="@{/korisnik/dashboard(page=${porudzbinePage.number + 1}, size=${porudzbinePage.size}, status=${statusFilter})}"
+                       class="px-4 py-2 border rounded bg-gray-200 hover:bg-gray-300">Sledeća</a>
+                </div>
+            </div>
+        </div>
+
+
+        <div x-show="tab === 'rezervacije'" class="space-y-6">
+            <!-- Prikaz poruka uspeha i greške -->
+            <div th:if="${successMessage}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" role="alert">
+                <p th:text="${successMessage}"></p>
+            </div>
+
+            <div th:if="${errorMessage}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+                <p th:text="${errorMessage}"></p>
+            </div>
+
+            <h2 class="text-2xl font-semibold flex items-center gap-2"><i class="fas fa-calendar-alt"></i>Moje rezervacije</h2>
+
+            <div th:if="${rezervacije.isEmpty()}" class="text-gray-500">Nemate nijednu rezervaciju.</div>
+
+
+            <div th:each="r : ${rezervacije}" class="border rounded-xl p-6 shadow bg-gray-50 space-y-2">
+                <p><strong><i class="fas fa-heading"></i> Naziv:</strong> <span th:text="${r.naziv}"></span></p>
+                <p><strong><i class="fas fa-map-marker-alt"></i> Lokacija:</strong> <span th:text="${r.lokacija}"></span></p>
+                <p><strong><i class="fas fa-calendar-day"></i> Datum:</strong> <span th:text="${#temporals.format(r.datum, 'dd.MM.yyyy HH:mm')}"></span></p>
+                <p><strong><i class="fas fa-users"></i> Broj osoba:</strong> <span th:text="${r.brojOsoba}"></span></p>
+                <p><strong><i class="fas fa-align-left"></i> Opis:</strong> <span th:text="${r.opis} ?: 'Nema'"></span></p>
+
+
+                <div class="mt-3">
+                    <h3 class="font-semibold text-blue-700"><i class="fas fa-utensils mr-1"></i>Poručena jela:</h3>
+                    <table class="w-full text-left border mt-2 rounded shadow-sm">
+                        <thead class="bg-blue-100">
+                        <tr>
+                            <th class="p-2 border">Jelo</th>
+                            <th class="p-2 border">Cena (RSD)</th>
+                            <th class="p-2 border">Količina</th>
+                            <th class="p-2 border">Ukupno</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="stavka : ${r.stavke}">
+                            <td class="p-2 border" th:text="${stavka.jelovnik.naziv}"></td>
+                            <td class="p-2 border" th:text="${stavka.jelovnik.cena}"></td>
+                            <td class="p-2 border" th:text="${stavka.kolicina}"></td>
+                            <td class="p-2 border" th:text="${stavka.kolicina * stavka.jelovnik.cena}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-right font-semibold text-blue-700 mt-2">
+                        Ukupna cena:
+                        <span class="font-bold"
+                              th:text="${#numbers.formatDecimal(ukupneCeneRezervacija[r.id], 0, 'COMMA', 2, 'POINT')} + ' RSD'">
+    </span>
+                    </div>
+
+                </div>
+
+
+                <form th:action="@{/korisnik/otkazi-rezervaciju/{id}(id=${r.id})}" method="post">
+                    <button type="submit" class="text-red-600 hover:underline mt-2">
+                        <i class="fas fa-times-circle mr-1"></i>Otkaži rezervaciju
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</main>
+<div th:replace="fragments/layout :: footer"></div>
+</body>
+</html>
+

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="sr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link href="/css/output.css" rel="stylesheet">
+    <script th:src="@{/webjars/alpinejs/3.14.9/dist/cdn.min.js}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+<div th:replace="fragments/layout :: navbar"></div>
+
+<main class="flex-grow pt-20 pb-10 px-4">
+    <div class="max-w-7xl mx-auto bg-white p-8 rounded-xl shadow-lg"
+         x-data="{
+            tab: localStorage.getItem('adminTab') || 'korisnici',
+            setTab(t) { this.tab = t; localStorage.setItem('adminTab', t); }
+         }">
+
+        <h1 class="text-4xl font-bold text-center text-blue-700 mb-10"><i class="fa-solid fa-user-shield"></i> Admin Panel</h1>
+
+
+        <div class="mb-4 space-y-2">
+            <div th:if="${success}" class="bg-green-100 border-l-4 border-green-600 text-green-800 px-4 py-2 rounded shadow">
+                <i class="fa-solid fa-circle-check mr-2"></i>
+                <span th:text="${success}"></span>
+            </div>
+
+            <div th:if="${error}" class="bg-red-100 border-l-4 border-red-600 text-red-800 px-4 py-2 rounded shadow">
+                <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+        </div>
+
+
+
+        <div class="flex justify-center gap-4 mb-10">
+            <button @click="setTab('korisnici')" :class="tab === 'korisnici' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+                    class="flex items-center gap-2 px-6 py-2 rounded-full font-semibold shadow-sm hover:bg-blue-700 hover:text-white transition">
+                <i class="fa-solid fa-users"></i> Korisnici
+            </button>
+            <button @click="setTab('jelovnik')" :class="tab === 'jelovnik' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+                    class="flex items-center gap-2 px-6 py-2 rounded-full font-semibold shadow-sm hover:bg-blue-700 hover:text-white transition">
+                <i class="fa-solid fa-utensils"></i> Jelovnik
+            </button>
+            <button @click="setTab('porudzbine')" :class="tab === 'porudzbine' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+                    class="flex items-center gap-2 px-6 py-2 rounded-full font-semibold shadow-sm hover:bg-blue-700 hover:text-white transition">
+                <i class="fa-solid fa-receipt"></i> Porudžbine
+            </button>
+
+            <button @click="setTab('dogadjaji')" :class="tab === 'dogadjaji' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+                    class="flex items-center gap-2 px-6 py-2 rounded-full font-semibold shadow-sm hover:bg-blue-700 hover:text-white transition">
+                <i class="fa-solid fa-calendar-day"></i> Događaji
+            </button>
+
+        </div>
+
+
+        <div x-show="tab === 'korisnici'" x-cloak>
+            <table class="w-full text-left border-collapse shadow-sm rounded overflow-hidden">
+                <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-3">#</th>
+                    <th class="p-3">Ime</th>
+                    <th class="p-3">Prezime</th>
+                    <th class="p-3">Email</th>
+                    <th class="p-3">Uloga</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="korisnik : ${korisnici}" class="border-t hover:bg-gray-50 transition">
+                    <td class="p-3" th:text="${korisnik.id}"></td>
+                    <td class="p-3" th:text="${korisnik.ime}"></td>
+                    <td class="p-3" th:text="${korisnik.prezime}"></td>
+                    <td class="p-3" th:text="${korisnik.email}"></td>
+                    <td class="p-3 font-semibold" th:text="${korisnik.uloga}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div x-show="tab === 'jelovnik'" x-cloak>
+            <div class="flex justify-between items-center mb-4">
+                <form method="get" action="/panel" class="flex items-center gap-2">
+                    <label class="font-medium">Tip:</label>
+                    <select name="tip" class="border rounded px-3 py-1">
+                        <option value="">Svi</option>
+                        <option value="Glavno" th:selected="${tipFilter == 'Glavno'}">Glavno jelo</option>
+                        <option value="Predjelo" th:selected="${tipFilter == 'Predjelo'}">Predjelo</option>
+                        <option value="Dezert" th:selected="${tipFilter == 'Dezert'}">Dezert</option>
+                        <option value="Pice" th:selected="${tipFilter == 'Pice'}">Piće</option>
+                    </select>
+
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-filter"></i> Filtriraj
+                    </button>
+                </form>
+
+                <a href="/admin/jelovnik/novi"
+                   class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-plus"></i> Dodaj jelo
+                </a>
+            </div>
+
+            <table class="w-full border text-left shadow-sm rounded overflow-hidden">
+                <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2">Slika</th>
+                    <th class="p-2">Naziv</th>
+                    <th class="p-2">Opis</th>
+                    <th class="p-2">Cena</th>
+                    <th class="p-2">Tip</th>
+                    <th class="p-2 text-center">Akcije</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="jelo : ${jelaPage.content}" class="border-t hover:bg-gray-50 transition">
+                    <td class="p-2"><img th:src="${jelo.slika}" class="w-16 h-16 object-cover rounded" alt="slika"></td>
+                    <td class="p-2" th:text="${jelo.naziv}"></td>
+                    <td class="p-2" th:text="${jelo.opis}"></td>
+                    <td class="p-2" th:text="${jelo.cena} + ' RSD'"></td>
+                    <td class="p-2" th:text="${jelo.tip}"></td>
+                    <td class="p-2 text-center space-x-2">
+                        <a th:href="@{'/admin/jelovnik/izmeni/' + ${jelo.id}}" class="text-blue-600 hover:text-blue-800">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <a th:href="@{'/admin/jelovnik/obrisi/' + ${jelo.id}}" class="text-red-600 hover:text-red-800"
+                           onclick="return confirm('Da li ste sigurni da želite da obrišete jelo?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Porudžbine -->
+        <div x-show="tab === 'porudzbine'" x-cloak>
+            <form method="get" action="/panel" class="flex gap-2 mb-4">
+                <label>Status:</label>
+                <select name="status" class="border rounded p-2">
+                    <option value="">Svi</option>
+                    <option value="Na čekanju" th:selected="${statusFilter == 'Na čekanju'}">Na čekanju</option>
+                    <option value="U pripremi" th:selected="${statusFilter == 'U pripremi'}">U pripremi</option>
+                    <option value="Isporučeno" th:selected="${statusFilter == 'Isporučeno'}">Isporučeno</option>
+                    <option value="Otkazano" th:selected="${statusFilter == 'Otkazano'}">Otkazano</option>
+                </select>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">
+                    <i class="fa-solid fa-filter"></i> Filtriraj
+                </button>
+            </form>
+
+            <table class="w-full border text-left shadow-sm rounded">
+                <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2">#</th>
+                    <th class="p-2">Korisnik</th>
+                    <th class="p-2">Datum</th>
+                    <th class="p-2">Napomena</th>
+                    <th class="p-2">Status</th>
+                    <th class="p-2 text-center">Akcije</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${porudzbinePage.content}" class="border-t hover:bg-gray-50 transition">
+                    <td class="p-2" th:text="${p.id}"></td>
+                    <td class="p-2" th:text="${p.korisnikID?.ime + ' ' + p.korisnikID?.prezime}"></td>
+                    <td class="p-2" th:text="${#temporals.format(p.datumPorudzbine, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td class="p-2" th:text="${p.napomena} ?: '-'"></td>
+                    <td class="p-2 font-semibold" th:text="${p.status}"></td>
+                    <td class="p-2 text-center">
+                        <form th:action="@{/admin/porudzbine/status}" method="post" class="flex items-center space-x-2 justify-center">
+                            <input type="hidden" name="porudzbinaId" th:value="${p.id}" />
+                            <select name="noviStatus" class="border rounded px-2 py-1">
+                                <option th:selected="${p.status == 'Na čekanju'}">Na čekanju</option>
+                                <option th:selected="${p.status == 'U pripremi'}">U pripremi</option>
+                                <option th:selected="${p.status == 'Isporučeno'}">Isporučeno</option>
+                                <option th:selected="${p.status == 'Otkazano'}">Otkazano</option>
+                            </select>
+                            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                                <i class="fa-solid fa-save"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div x-show="tab === 'dogadjaji'" x-cloak>
+            <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-calendar-day"></i> Pregled događaja</h2>
+
+            <div th:if="${#lists.isEmpty(dogadjaji)}" class="text-gray-500">Nema zakazanih događaja.</div>
+
+            <div th:each="d : ${dogadjaji}" class="border rounded-xl p-6 shadow bg-gray-50 space-y-2 mb-6">
+                <p><strong>Naziv:</strong> <span th:text="${d.naziv}"></span></p>
+
+                <p><strong>Korisnik:</strong>
+                    <span th:text="${d.korisnik.ime + ' ' + d.korisnik.prezime + ' (' + d.korisnik.email + ')'}"></span>
+                </p>
+
+                <p><strong>Datum:</strong>
+                    <span th:text="${#temporals.format(d.datum, 'dd.MM.yyyy HH:mm')}"></span>
+                </p>
+
+                <p><strong>Lokacija:</strong> <span th:text="${d.lokacija}"></span></p>
+                <p><strong>Broj osoba:</strong> <span th:text="${d.brojOsoba}"></span></p>
+                <p><strong>Napomena:</strong>
+                    <span th:text="${d.opis != null ? d.opis : 'Nema'}"></span>
+                </p>
+
+                <!-- Poručena jela -->
+                <div class="mt-3" th:if="${d.stavke != null and !d.stavke.isEmpty()}">
+                    <h3 class="font-semibold text-blue-700"><i class="fas fa-utensils mr-1"></i>Poručena jela:</h3>
+                    <table class="w-full text-left border mt-2 rounded shadow-sm">
+                        <thead class="bg-blue-100">
+                        <tr>
+                            <th class="p-2 border">Naziv</th>
+                            <th class="p-2 border">Cena</th>
+                            <th class="p-2 border">Količina</th>
+                            <th class="p-2 border">Ukupno</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="stavka : ${d.stavke}">
+                            <td class="p-2 border" th:text="${stavka.jelovnik.naziv}"></td>
+                            <td class="p-2 border" th:text="${stavka.jelovnik.cena + ' RSD'}"></td>
+                            <td class="p-2 border" th:text="${stavka.kolicina}"></td>
+                            <td class="p-2 border"
+                                th:text="${stavka.kolicina * stavka.jelovnik.cena + ' RSD'}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-right font-bold text-blue-700 mt-2 mr-20">
+                        Ukupna cena:
+                        <span th:text="${#numbers.formatDecimal(ukupneCeneDogadjaja[d.id], 0, 'COMMA', 2, 'POINT')} + ' RSD'"></span>
+                    </div>
+
+                </div>
+
+                <!-- Ako nema stavki -->
+                <div class="mt-3 text-gray-500" th:if="${d.stavke == null or d.stavke.isEmpty()}">
+                    Nema poručenih jela za ovaj događaj.
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</main>
+
+<div th:replace="fragments/layout :: footer"></div>
+</body>
+</html>
+
+
+
