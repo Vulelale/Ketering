@@ -87,7 +87,7 @@ public class KorpaController {
         p.setKorisnikID(korisnik);
         p.setDatumPorudzbine(LocalDateTime.now());
         p.setStatus("Na čekanju");
-        p.setNapomena(napomena != null ? napomena.trim() : "");  // ovde sada koristiš parametar napomena
+        p.setNapomena(napomena != null ? napomena.trim() : "");
         porudzbinaRepo.save(p);
 
         for (StavkePorudzbine stavka : korpa) {

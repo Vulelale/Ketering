@@ -37,7 +37,7 @@ public class AdminJelovnikController {
                 Path path = Paths.get(folder + fileName);
                 Files.write(path, imageFile.getBytes());
 
-                jelovnik.setSlika("/images/" + fileName); // čuva se putanja ka slici
+                jelovnik.setSlika("/images/" + fileName);
             } catch (Exception e) {
                 e.printStackTrace();
             }

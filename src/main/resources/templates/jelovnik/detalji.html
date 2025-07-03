@@ -10,7 +10,7 @@
 <div th:replace="fragments/layout :: navbar"></div>
 
 <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-2xl w-full animate-fade-in">
-    <!-- Slika -->
+
     <div class="relative mb-6">
         <img th:src="${jelo.slika}" th:alt="${jelo.naziv}" class="w-full h-64 object-cover rounded-xl shadow-md">
         <div class="absolute top-2 right-2 bg-white rounded-full px-3 py-1 text-sm font-medium text-gray-700 shadow">
@@ -18,24 +18,24 @@
         </div>
     </div>
 
-    <!-- Naslov -->
+
     <h1 class="text-4xl font-extrabold text-gray-800 mb-3 flex items-center gap-2">
         <i class="fas fa-utensils text-blue-600"></i>
         <span th:text="${jelo.naziv}">Naziv jela</span>
     </h1>
 
-    <!-- Opis -->
+
     <p class="text-gray-700 text-lg leading-relaxed mb-4" th:text="${jelo.opis}">
         Opis jela će biti ovde.
     </p>
 
-    <!-- Cena -->
+
     <div class="text-2xl font-bold text-green-600 mb-6">
         <i class="fas fa-money-bill-wave mr-1"></i>
         <span th:text="${jelo.cena + ' RSD'}">Cena</span>
     </div>
 
-    <!-- Poručivanje -->
+
     <form th:action="@{/korpa/dodaj}" method="post" class="flex flex-col sm:flex-row sm:items-center gap-4">
         <input type="hidden" name="jelovnikId" th:value="${jelo.id}" />
         <label class="flex items-center gap-2">

@@ -137,7 +137,7 @@ public class KorisnikController {
         }
 
         korisnikRepo.save(korisnik);
-        session.setAttribute("user", korisnik); // osveži korisnika u sesiji
+        session.setAttribute("user", korisnik);
 
         redirectAttributes.addFlashAttribute("successMessage", "Podaci su uspešno izmenjeni.");
         return "redirect:/korisnik/dashboard";
